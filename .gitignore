@@ -1,0 +1,51 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+local.properties
+
+# Android / Gradle
+.gradle/
+build/
+**/build/
+*.apk
+*.aab
+!release/
+!release/dramacard-debug.apk
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Private media and generated content
+dataset/
+outputs/
+downloaded_videos/
+instance/
+models/
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.webm
+*.mp3
+*.wav
+*.flac
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.7z

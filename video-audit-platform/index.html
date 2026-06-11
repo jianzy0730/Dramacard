@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短剧剧情分析工作台</title>
+    <style>
+        :root {
+            --bg: #f4f1ea;
+            --panel: #fffdf8;
+            --panel-2: #f8f3ea;
+            --line: #d9cfbf;
+            --text: #2f2923;
+            --muted: #746a5f;
+            --brand: #8c3d2e;
+            --brand-dark: #6e2d21;
+            --ok: #2f7d4d;
+            --warn: #b97a18;
+            --danger: #b24545;
+            --shadow: 0 8px 24px rgba(70, 50, 28, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #fff8ef, #f3e5d2);
+            border: 1px solid #eadac1;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            padding: 18px 20px 12px;
+            border-bottom: 1px solid #eee3d4;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        .stack {
+            display: grid;
+            gap: 18px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .field label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            border: 1px solid #ccbda7;
+            border-radius: 12px;
+            padding: 11px 12px;
+            font: inherit;
+            background: #fff;
+            color: var(--text);
+        }
+
+        .field textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .inline-2,
+        .inline-3 {
+            display: grid;
+            gap: 12px;
+        }
+
+        .inline-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .inline-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .check {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .dropzone {
+            border: 1.5px dashed #beaa8b;
+            background: var(--panel-2);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .dropzone strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .dropzone p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .video-preview {
+            display: none;
+            margin-top: 14px;
+        }
+
+        .video-preview video {
+            width: 100%;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 11px 16px;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--brand);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-dark);
+        }
+
+        .btn-secondary {
+            background: #efe5d6;
+            color: var(--text);
+        }
+
+        .status {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.info {
+            background: #f7efe2;
+            color: #6d4f26;
+        }
+
+        .status.success {
+            background: #e8f4ec;
+            color: var(--ok);
+        }
+
+        .status.error {
+            background: #f8e8e8;
+            color: var(--danger);
+        }
+
+        .right {
+            display: grid;
+            gap: 20px;
+        }
+
+        .placeholder {
+            padding: 48px 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .stat {
+            background: var(--panel-2);
+            border: 1px solid #eadfce;
+            border-radius: 14px;
+            padding: 14px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .section-title {
+            margin: 0 0 12px;
+            font-size: 17px;
+        }
+
+        .section-subtitle {
+            margin: 0 0 10px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .chips,
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0e4d6;
+            color: #5b4330;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #eadfce;
+            border-radius: 14px;
+            padding: 14px;
+        }
+
+        .card h4 {
+            margin: 0 0 8px;
+            font-size: 15px;
+        }
+
+        .card p {
+            margin: 0;
+            line-height: 1.6;
+            color: #433b34;
+            white-space: pre-wrap;
+        }
+
+        .meta {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 8px;
+        }
+
+        .highlight-card {
+            border-left: 4px solid var(--brand);
+        }
+
+        .scene-card details {
+            border-radius: 14px;
+            border: 1px solid #eadfce;
+            background: #fff;
+            padding: 0 14px;
+        }
+
+        .scene-card summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 14px 0;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .scene-card summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .scene-body {
+            padding: 0 0 14px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .mono {
+            font-family: "SFMono-Regular", Consolas, monospace;
+            font-size: 12px;
+            background: #f8f4ee;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .loading {
+            display: none;
+            color: var(--brand);
+            font-weight: 600;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @media (max-width: 1100px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stats,
+            .grid-2,
+            .inline-3,
+            .inline-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <section class="hero">
+            <h1>短剧剧情分析工作台</h1>
+            <p>面向短剧运营和互动设计的分析前端。重点查看跨集剧情记忆、高光点、伏笔回收、冲突解决和互动触发时机。</p>
+        </section>
+
+        <div class="layout">
+            <aside class="panel">
+                <div class="panel-header">
+                    <h2>分析输入</h2>
+                </div>
+                <div class="panel-body stack">
+                    <div class="field">
+                        <label>本地上传视频</label>
+                        <div id="dropzone" class="dropzone">
+                            <strong>点击或拖入短剧视频</strong>
+                            <p>支持本地视频上传，或使用下方链接下载后分析</p>
+                        </div>
+                        <input id="fileInput" type="file" accept="video/*" hidden>
+                        <div id="videoPreview" class="video-preview">
+                            <video id="videoPlayer" controls></video>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="videoUrl">在线链接下载</label>
+                        <input id="videoUrl" type="text" placeholder="粘贴 B 站 / YouTube 等视频链接">
+                        <div class="actions">
+                            <button id="downloadBtn" class="btn-secondary" type="button">下载到服务器</button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="seriesTitle">剧名</label>
+                        <input id="seriesTitle" type="text" value="撕夜" placeholder="例如：撕夜">
+                    </div>
+
+                    <div class="inline-2">
+                        <div class="field">
+                            <label for="seriesKey">系列 Key</label>
+                            <input id="seriesKey" type="text" placeholder="可留空自动生成">
+                        </div>
+                        <div class="field">
+                            <label for="episodeNumber">集数</label>
+                            <input id="episodeNumber" type="number" min="1" value="10" placeholder="例如：10">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="promptText">分析提示词</label>
+                        <textarea id="promptText" placeholder="例如：请重点识别剧情冲突、人物关系变化、情绪爆点和可互动节点">请重点识别剧情冲突、人物关系变化、情绪爆点和可互动节点</textarea>
+                    </div>
+
+                    <div class="inline-3">
+                        <div class="field">
+                            <label for="sceneThreshold">切镜阈值</label>
+                            <input id="sceneThreshold" type="number" step="0.1" value="27.0">
+                        </div>
+                        <div class="field">
+                            <label for="chooseFps">抽帧 FPS</label>
+                            <input id="chooseFps" type="number" step="0.1" value="1.5">
+                        </div>
+                        <div class="field">
+                            <label for="maxFramesPerChunk">单块帧数</label>
+                            <input id="maxFramesPerChunk" type="number" step="1" value="30">
+                        </div>
+                    </div>
+
+                    <div class="inline-3">
+                        <label class="check"><input id="useSceneDetection" type="checkbox" checked>启用镜头切分</label>
+                        <label class="check"><input id="useAdaptive" type="checkbox">自适应切镜</label>
+                        <label class="check"><input id="enableOcr" type="checkbox" checked>优先字幕 OCR</label>
+                    </div>
+
+                    <div class="inline-3">
+                        <label class="check"><input id="enableAsr" type="checkbox" checked>启用 ASR</label>
+                        <div class="field">
+                            <label for="asrLanguage">ASR 语言</label>
+                            <input id="asrLanguage" type="text" placeholder="留空自动识别">
+                        </div>
+                        <div class="field">
+                            <label for="asrBeamSize">Beam Size</label>
+                            <input id="asrBeamSize" type="number" value="5">
+                        </div>
+                        <div class="field">
+                            <label for="asrMaxChars">字幕截断长度</label>
+                            <input id="asrMaxChars" type="number" value="1200">
+                        </div>
+                    </div>
+
+                    <label class="check"><input id="asrVad" type="checkbox" checked>ASR 启用 VAD</label>
+
+                    <div class="inline-3">
+                        <div class="field">
+                            <label for="ocrSampleFps">OCR 采样 FPS</label>
+                            <input id="ocrSampleFps" type="number" step="0.1" value="2.5">
+                        </div>
+                        <div class="field">
+                            <label for="ocrBottomRatio">字幕区比例</label>
+                            <input id="ocrBottomRatio" type="number" step="0.01" value="0.32">
+                        </div>
+                        <div class="field">
+                            <label for="ocrTextScore">OCR 置信阈值</label>
+                            <input id="ocrTextScore" type="number" step="0.01" value="0.45">
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button id="analyzeBtn" class="btn-primary" type="button">开始分析</button>
+                        <button id="loadSeriesBtn" class="btn-secondary" type="button">查看系列记忆</button>
+                    </div>
+
+                    <div id="loading" class="loading">正在分析，请稍候。模型首次启动可能较慢。</div>
+                    <div id="status" class="status info"></div>
+                </div>
+            </aside>
+
+            <main class="right">
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>分析概览</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div id="emptyState" class="placeholder">
+                            还没有分析结果。上传一集短剧后，这里会显示剧情记忆、高光点和互动触发信息。
+                        </div>
+                        <div id="results" style="display:none;">
+                            <div class="stats">
+                                <div class="stat">
+                                    <div class="stat-label">场景数</div>
+                                    <div id="statScenes" class="stat-value">-</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">剧情单元</div>
+                                    <div id="statUnits" class="stat-value">-</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">重点单元</div>
+                                    <div id="statFocusUnits" class="stat-value">-</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">抽帧数</div>
+                                    <div id="statFrames" class="stat-value">-</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">时长</div>
+                                    <div id="statDuration" class="stat-value">-</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-label">采样 FPS</div>
+                                    <div id="statFps" class="stat-value">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="grid-2">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h2>剧集剧情记忆</h2>
+                        </div>
+                        <div class="panel-body">
+                            <h3 class="section-title">上下文</h3>
+                            <div id="storyContext" class="meta">暂无</div>
+                            <h3 class="section-title" style="margin-top:18px;">本集摘要</h3>
+                            <div id="episodeSummary" class="card"><p>暂无</p></div>
+                            <h3 class="section-title" style="margin-top:18px;">主要事件</h3>
+                            <div id="mainEvents" class="list"></div>
+                            <h3 class="section-title" style="margin-top:18px;">人物状态</h3>
+                            <div id="characterStates" class="list"></div>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h2>高光与互动触发</h2>
+                        </div>
+                        <div class="panel-body">
+                            <h3 class="section-title">高光列表</h3>
+                            <div id="highlights" class="list"></div>
+                            <h3 class="section-title" style="margin-top:18px;">剧情线</h3>
+                            <div id="plotThreads" class="list"></div>
+                            <h3 class="section-title" style="margin-top:18px;">记忆事件</h3>
+                            <div id="memoryEvents" class="list"></div>
+                        </div>
+                    </section>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>分场景详情</h2>
+                    </div>
+                    <div class="panel-body">
+                        <div id="sceneDetails" class="list"></div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>剧情总览与转写</h2>
+                    </div>
+                    <div class="panel-body stack">
+                        <div>
+                            <h3 class="section-title">剧情总览</h3>
+                            <div id="storyDigestText" class="card"><p>暂无</p></div>
+                        </div>
+                        <div>
+                            <h3 class="section-title">完整转写</h3>
+                            <div id="transcriptText" class="card"><p>暂无</p></div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const backendBase = `http://${window.location.hostname}:5000`;
+        let uploadedFile = null;
+        let downloadedServerFile = null;
+
+        const fileInput = document.getElementById("fileInput");
+        const dropzone = document.getElementById("dropzone");
+        const videoPreview = document.getElementById("videoPreview");
+        const videoPlayer = document.getElementById("videoPlayer");
+        const statusBox = document.getElementById("status");
+        const loading = document.getElementById("loading");
+
+        dropzone.addEventListener("click", () => fileInput.click());
+        dropzone.addEventListener("dragover", (event) => {
+            event.preventDefault();
+            dropzone.style.background = "#efe4d3";
+        });
+        dropzone.addEventListener("dragleave", () => {
+            dropzone.style.background = "";
+        });
+        dropzone.addEventListener("drop", (event) => {
+            event.preventDefault();
+            dropzone.style.background = "";
+            const [file] = event.dataTransfer.files;
+            if (file) handleFile(file);
+        });
+        fileInput.addEventListener("change", (event) => {
+            const [file] = event.target.files;
+            if (file) handleFile(file);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith("video/")) {
+                showStatus("请选择视频文件。", "error");
+                return;
+            }
+            uploadedFile = file;
+            downloadedServerFile = null;
+            videoPlayer.src = URL.createObjectURL(file);
+            videoPreview.style.display = "block";
+            dropzone.innerHTML = `<strong>${escapeHtml(file.name)}</strong><p>已选择本地视频，点击“开始分析”即可上传</p>`;
+            showStatus(`已载入本地视频：${file.name}`, "success");
+        }
+
+        function showStatus(message, kind = "info") {
+            statusBox.textContent = message;
+            statusBox.className = `status show ${kind}`;
+        }
+
+        function setLoading(visible, message = "") {
+            loading.textContent = message || "正在处理中...";
+            loading.classList.toggle("show", visible);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
+        function formatList(items, formatter) {
+            if (!items || items.length === 0) {
+                return '<div class="card"><p>暂无</p></div>';
+            }
+            return items.map(formatter).join("");
+        }
+
+        function renderTextBlock(elementId, text) {
+            document.getElementById(elementId).innerHTML = `<div class="card"><p>${escapeHtml(text || "暂无")}</p></div>`;
+        }
+
+        document.getElementById("downloadBtn").addEventListener("click", async () => {
+            const url = document.getElementById("videoUrl").value.trim();
+            if (!url) {
+                showStatus("请先输入视频链接。", "error");
+                return;
+            }
+            setLoading(true, "正在请求后端下载视频...");
+            try {
+                const response = await fetch(`${backendBase}/download`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url })
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || "下载失败");
+                }
+                uploadedFile = null;
+                downloadedServerFile = result;
+                videoPreview.style.display = "none";
+                dropzone.innerHTML = `<strong>${escapeHtml(result.filename)}</strong><p>视频已下载到服务器，点击“开始分析”直接走后端文件分析</p>`;
+                showStatus(`下载成功：${result.filename}`, "success");
+            } catch (error) {
+                showStatus(`下载失败：${error.message}`, "error");
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        document.getElementById("analyzeBtn").addEventListener("click", async () => {
+            if (!uploadedFile && !downloadedServerFile) {
+                showStatus("请先上传本地视频，或先通过链接下载一集视频。", "error");
+                return;
+            }
+
+            const formData = new FormData();
+            if (uploadedFile) {
+                formData.append("video", uploadedFile);
+            } else {
+                formData.append("filename", downloadedServerFile.filename);
+            }
+
+            const appendValue = (id) => formData.append(id, document.getElementById(id).value);
+            const appendChecked = (id) => formData.append(id, document.getElementById(id).checked);
+
+            appendValue("seriesTitle");
+            appendValue("seriesKey");
+            appendValue("episodeNumber");
+            appendValue("promptText");
+            appendValue("sceneThreshold");
+            appendValue("chooseFps");
+            appendValue("maxFramesPerChunk");
+            appendValue("asrLanguage");
+            appendValue("asrBeamSize");
+            appendValue("asrMaxChars");
+            appendValue("ocrSampleFps");
+            appendValue("ocrBottomRatio");
+            appendValue("ocrTextScore");
+            appendChecked("useSceneDetection");
+            appendChecked("useAdaptive");
+            appendChecked("enableOcr");
+            appendChecked("enableAsr");
+            appendChecked("asrVad");
+            formData.append("maxSide", "512");
+            formData.append("timeScale", "0.1");
+
+            setLoading(true, "正在分析短剧，请等待后端完成切镜、抽帧、字幕 OCR / ASR 和剧情记忆计算...");
+            showStatus("分析任务已提交。首次运行可能需要先加载模型。", "info");
+
+            try {
+                const response = await fetch(`${backendBase}/analyze`, {
+                    method: "POST",
+                    body: formData
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || "分析失败");
+                }
+                renderResults(result);
+                showStatus("分析完成，已生成剧情记忆和高光结果。", "success");
+            } catch (error) {
+                showStatus(`分析失败：${error.message}`, "error");
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        document.getElementById("loadSeriesBtn").addEventListener("click", async () => {
+            const seriesKey = document.getElementById("seriesKey").value.trim();
+            if (!seriesKey) {
+                showStatus("要查看跨集记忆，请先填写系列 Key。", "error");
+                return;
+            }
+            setLoading(true, "正在拉取系列剧情记忆...");
+            try {
+                const response = await fetch(`${backendBase}/series/${encodeURIComponent(seriesKey)}/memory`);
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || "获取系列记忆失败");
+                }
+                renderSeriesMemory(result);
+                showStatus("已加载系列剧情记忆。", "success");
+            } catch (error) {
+                showStatus(`获取系列记忆失败：${error.message}`, "error");
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function renderResults(data) {
+            document.getElementById("emptyState").style.display = "none";
+            document.getElementById("results").style.display = "block";
+
+            document.getElementById("statScenes").textContent = data.stats?.scenes ?? "-";
+            document.getElementById("statUnits").textContent = data.stats?.story_units ?? "-";
+            document.getElementById("statFocusUnits").textContent = data.stats?.focus_units ?? "-";
+            document.getElementById("statFrames").textContent = data.stats?.frames ?? "-";
+            document.getElementById("statDuration").textContent = data.stats?.duration ?? "-";
+            document.getElementById("statFps").textContent = data.stats?.fps ?? "-";
+
+            const storyContext = data.story_context || {};
+            document.getElementById("storyContext").innerHTML = `
+                <div>剧名：<span class="mono">${escapeHtml(storyContext.series_title || "-")}</span></div>
+                <div>系列 Key：<span class="mono">${escapeHtml(storyContext.series_key || "-")}</span></div>
+                <div>集数：<span class="mono">${escapeHtml(storyContext.episode_number || "-")}</span></div>
+            `;
+
+            const storyMemory = data.story_memory || {};
+            renderTextBlock("episodeSummary", storyMemory.episode_summary || "暂无");
+
+            document.getElementById("mainEvents").innerHTML = formatList(storyMemory.main_events, (item) => `
+                <div class="card">
+                    <h4>${escapeHtml(item.summary || "未命名事件")}</h4>
+                    <div class="meta">类型：${escapeHtml(item.event_type || "-")} | 重要度：${escapeHtml(item.importance || "-")}</div>
+                    <div class="chips">${(item.characters || []).map((name) => `<span class="chip">${escapeHtml(name)}</span>`).join("")}</div>
+                </div>
+            `);
+
+            document.getElementById("characterStates").innerHTML = formatList(storyMemory.character_states, (item) => `
+                <div class="card">
+                    <h4>${escapeHtml(item.character || "未命名角色")}</h4>
+                    <p>状态：${escapeHtml(item.state || "暂无")}</p>
+                    <div class="meta">目标：${escapeHtml(item.goal || "暂无")}<br>证据：${escapeHtml(item.evidence || "暂无")}</div>
+                    <div class="chips">${(item.relationship_changes || []).map((entry) => `<span class="chip">${escapeHtml(entry)}</span>`).join("")}</div>
+                </div>
+            `);
+
+            document.getElementById("plotThreads").innerHTML = formatList(storyMemory.plot_threads, (item) => `
+                <div class="card">
+                    <h4>${escapeHtml(item.title || item.thread_key || "未命名剧情线")}</h4>
+                    <p>${escapeHtml(item.description || "暂无描述")}</p>
+                    <div class="meta">状态：${escapeHtml(item.status || "-")} | 优先级：${escapeHtml(item.priority || "-")}</div>
+                    <div class="chips">${(item.related_characters || []).map((name) => `<span class="chip">${escapeHtml(name)}</span>`).join("")}</div>
+                </div>
+            `);
+
+            document.getElementById("memoryEvents").innerHTML = formatList(storyMemory.memory_events, (item) => `
+                <div class="card">
+                    <h4>${escapeHtml(item.summary || "未命名记忆事件")}</h4>
+                    <div class="meta">类型：${escapeHtml(item.event_type || "-")} | 开放问题：${item.is_open_question ? "是" : "否"}</div>
+                    <div class="chips">${(item.characters || []).map((name) => `<span class="chip">${escapeHtml(name)}</span>`).join("")}</div>
+                </div>
+            `);
+
+            document.getElementById("highlights").innerHTML = formatList(data.highlights, (item) => `
+                <div class="card highlight-card">
+                    <h4>${escapeHtml(item.highlight_type || "高光点")}</h4>
+                    <div class="meta">
+                        payoff：${escapeHtml(item.payoff_type || "-")} | score：${escapeHtml(item.payoff_score || "-")}<br>
+                        时间：${escapeHtml(item.start_time)} - ${escapeHtml(item.end_time)} | 峰值：${escapeHtml(item.peak_time)} | 互动触发：${escapeHtml(item.interaction_time)}
+                    </div>
+                    <p>${escapeHtml(item.trigger_reason || "暂无说明")}</p>
+                    <div class="chips">
+                        <span class="chip">互动类型：${escapeHtml(item.interaction_type || "-")}</span>
+                        ${(item.resolved_plot_threads || []).map((entry) => `<span class="chip">回收：${escapeHtml(entry.title || entry.thread_key || "-")}</span>`).join("")}
+                    </div>
+                </div>
+            `);
+
+            const storyDigest = data.story_digest || "暂无";
+            const transcriptPipeline = data.transcript_pipeline || {};
+            const transcript = [
+                data.full_transcript || "暂无",
+                transcriptPipeline.mode ? `\n\n[转写链路] ${transcriptPipeline.mode} | OCR=${transcriptPipeline.ocr_segments ?? 0} | ASR=${transcriptPipeline.asr_segments ?? 0} | Fused=${transcriptPipeline.fused_segments ?? 0}` : ""
+            ].join("");
+            renderTextBlock("storyDigestText", storyDigest);
+            renderTextBlock("transcriptText", transcript);
+
+            document.getElementById("sceneDetails").innerHTML = formatList(data.scene_details, (scene) => {
+                const memory = scene.story_memory || {};
+                const retrieval = scene.memory_retrieval || {};
+                const highlight = scene.highlight || {};
+                return `
+                    <div class="scene-card">
+                        <details>
+                            <summary>
+                                <span>${escapeHtml(scene.title || "场景")} · ${escapeHtml(scene.time || "")}</span>
+                                <span>${escapeHtml(highlight.highlight_type || "普通场景")}</span>
+                            </summary>
+                            <div class="scene-body">
+                                <div class="card">
+                                    <h4>场景分析</h4>
+                                    <p>${escapeHtml(scene.analysis || "暂无")}</p>
+                                </div>
+                                <div class="card">
+                                    <h4>字幕 / 转写</h4>
+                                    <p>${escapeHtml(scene.transcript || "暂无")}</p>
+                                    <div class="meta">来源：${escapeHtml((scene.transcript_source || []).join(" / ") || "-")}</div>
+                                    <div class="meta">OCR：${escapeHtml(scene.ocr_transcript || "暂无")}<br>ASR：${escapeHtml(scene.asr_transcript || "暂无")}</div>
+                                </div>
+                                <div class="card">
+                                    <h4>结构化剧情记忆</h4>
+                                    <p>${escapeHtml(memory.summary || "暂无")}</p>
+                                    <div class="meta">事件类型：${escapeHtml(memory.event_type || "-")}</div>
+                                    <div class="chips">${(memory.characters || []).map((name) => `<span class="chip">${escapeHtml(name)}</span>`).join("")}</div>
+                                </div>
+                                <div class="card">
+                                    <h4>前文检索结果</h4>
+                                    <p>相关前文事件：${escapeHtml((retrieval.related_previous_events || []).map((item) => item.summary).join("；") || "暂无")}</p>
+                                    <div class="meta">未解决剧情线：${escapeHtml((retrieval.unresolved_plot_threads || []).map((item) => item.title).join("；") || "暂无")}</div>
+                                </div>
+                                <div class="card">
+                                    <h4>高光判断</h4>
+                                    <p>${escapeHtml(highlight.trigger_reason || "暂无")}</p>
+                                    <div class="meta">
+                                        类型：${escapeHtml(highlight.highlight_type || "-")} | payoff：${escapeHtml(highlight.payoff_type || "-")} | score：${escapeHtml(highlight.payoff_score || "-")}
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                `;
+            });
+
+            if (storyContext.series_key) {
+                document.getElementById("seriesKey").value = storyContext.series_key;
+            }
+            if (storyContext.series_title && !document.getElementById("seriesTitle").value) {
+                document.getElementById("seriesTitle").value = storyContext.series_title;
+            }
+            if (storyContext.episode_number && !document.getElementById("episodeNumber").value) {
+                document.getElementById("episodeNumber").value = storyContext.episode_number;
+            }
+        }
+
+        function renderSeriesMemory(seriesPayload) {
+            const series = seriesPayload.series || {};
+            document.getElementById("storyContext").innerHTML = `
+                <div>剧名：<span class="mono">${escapeHtml(series.title || "-")}</span></div>
+                <div>系列 Key：<span class="mono">${escapeHtml(series.series_key || "-")}</span></div>
+                <div>已存集数：<span class="mono">${escapeHtml((seriesPayload.episodes || []).length)}</span></div>
+            `;
+
+            document.getElementById("plotThreads").innerHTML = formatList(seriesPayload.unresolved_plot_threads, (item) => `
+                <div class="card">
+                    <h4>${escapeHtml(item.title || item.thread_key || "未命名剧情线")}</h4>
+                    <p>${escapeHtml(item.description || "暂无描述")}</p>
+                    <div class="meta">状态：${escapeHtml(item.status || "-")} | 最近更新集数：${escapeHtml(item.episode_number || "-")}</div>
+                </div>
+            `);
+
+            document.getElementById("memoryEvents").innerHTML = formatList(seriesPayload.recent_memory_events, (item) => `
+                <div class="card">
+                    <h4>${escapeHtml(item.summary || "未命名事件")}</h4>
+                    <div class="meta">第 ${escapeHtml(item.episode_number || "-")} 集 | ${escapeHtml(item.event_type || "-")}</div>
+                </div>
+            `);
+
+            document.getElementById("mainEvents").innerHTML = formatList(seriesPayload.episodes, (episode) => `
+                <div class="card">
+                    <h4>第 ${escapeHtml(episode.episode_number || "-")} 集</h4>
+                    <p>${escapeHtml(episode.episode_summary || "暂无摘要")}</p>
+                </div>
+            `);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# --- Web 核心框架 ---
+flask
+flask-cors
+flask-sqlalchemy
+
+# --- 深度学习与 AI 模型 ---
+torch
+torchvision
+torchaudio
+transformers
+accelerate
+sentencepiece
+einops
+
+# --- 语音识别 (ASR) ---
+faster-whisper
+
+# --- 视频与图像处理 ---
+decord
+opencv-python
+scenedetect[opencv]
+yt-dlp
+pillow
+rapidocr_onnxruntime
+
+# --- 数据处理与数学计算 ---
+numpy
+scipy
+
+# --- 其它工具 ---
+tqdm
+python-dotenv

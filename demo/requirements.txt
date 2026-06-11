@@ -1,0 +1,8 @@
+openai>=1.30.0
+python-dotenv>=1.0.1
+Pillow>=10.0.0
+rapidocr-onnxruntime>=1.4.0
+
+# Optional OCR alternative. RapidOCR is preferred on Windows.
+# paddleocr
+# paddlepaddle

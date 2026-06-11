@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短剧语音高光识别</title>
+    <style>
+        :root {
+            --bg: #f6f2ea;
+            --panel: #fffdf8;
+            --line: #d9cfbf;
+            --text: #2f2922;
+            --muted: #6f6558;
+            --accent: #8e5b2a;
+            --accent-soft: #efe3d3;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(180deg, #f8f4ed 0%, #f2ecdf 100%);
+            color: var(--text);
+        }
+        .wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 28px 20px 56px;
+        }
+        .hero {
+            margin-bottom: 18px;
+        }
+        .hero h1 {
+            margin: 0 0 6px;
+            font-size: 30px;
+        }
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(79, 58, 32, 0.06);
+        }
+        .panel .inner {
+            padding: 18px;
+        }
+        .panel h2 {
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+        .field {
+            margin-bottom: 14px;
+        }
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        input, textarea, button {
+            font: inherit;
+        }
+        input[type="text"], input[type="number"], input[type="file"], textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px 12px;
+            color: var(--text);
+        }
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 11px 16px;
+            cursor: pointer;
+        }
+        .primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .secondary {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+        .status {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+        }
+        .status.show { display: block; }
+        .status.info { background: #f2eadf; color: #6d5436; }
+        .status.error { background: #fde8e8; color: #8f3434; }
+        .status.success { background: #e6f4ea; color: #29633d; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .stat {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+            background: #fff;
+        }
+        .stat .label {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .stat .value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .section {
+            margin-bottom: 18px;
+        }
+        .section h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+        }
+        .card, details {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+        }
+        .card {
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+        .card h4 {
+            margin: 0 0 8px;
+            font-size: 15px;
+        }
+        .meta {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .chip {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+        details {
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        summary {
+            list-style: none;
+            padding: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-weight: 600;
+        }
+        details > div {
+            padding: 0 14px 14px;
+        }
+        .placeholder {
+            border: 1px dashed var(--line);
+            border-radius: 16px;
+            padding: 42px 18px;
+            text-align: center;
+            color: var(--muted);
+            background: rgba(255,255,255,0.55);
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.65;
+        }
+        @media (max-width: 960px) {
+            .layout { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="hero">
+            <h1>短剧语音高光识别</h1>
+            <p>语音文本驱动。优先使用人工 SRT/TXT；没有字幕时才回退 ASR。当前已接入音频清洗前处理和更强的 Whisper 默认配置。</p>
+        </div>
+
+        <div class="layout">
+            <aside class="panel">
+                <div class="inner">
+                    <h2>分析输入</h2>
+
+                    <div class="field">
+                        <label for="videoFile">视频文件</label>
+                        <input id="videoFile" type="file" accept="video/*">
+                    </div>
+
+                    <div class="field">
+                        <label for="transcriptFile">字幕 / 剧本（可选，SRT/TXT）</label>
+                        <input id="transcriptFile" type="file" accept=".srt,.txt,text/plain">
+                        <div class="meta" style="margin-top:6px;">建议优先上传人工字幕或剧本。纯 ASR 在强 BGM、快语速、哭腔场景下仍可能不准。</div>
+                    </div>
+
+                    <div class="grid2">
+                        <div class="field">
+                            <label for="seriesTitle">剧名</label>
+                            <input id="seriesTitle" type="text" value="撕夜">
+                        </div>
+                        <div class="field">
+                            <label for="episodeNumber">集数</label>
+                            <input id="episodeNumber" type="number" min="1" value="10">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="seriesKey">系列 Key</label>
+                        <input id="seriesKey" type="text" placeholder="可留空自动生成">
+                    </div>
+
+                    <div class="grid2">
+                        <div class="field">
+                            <label for="asrLanguage">ASR 语言</label>
+                            <input id="asrLanguage" type="text" value="zh" placeholder="默认 zh">
+                        </div>
+                        <div class="field">
+                            <label for="asrBeamSize">Beam Size</label>
+                            <input id="asrBeamSize" type="number" min="1" value="8">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="speakerMapping">Speaker 映射（可选 JSON）</label>
+                        <textarea id="speakerMapping" placeholder='{"speaker_1":"沈知意","speaker_2":"陆沉"}'></textarea>
+                    </div>
+
+                    <div class="actions">
+                        <button id="analyzeBtn" class="primary" type="button">开始分析</button>
+                        <button id="fillBtn" class="secondary" type="button">填入示例</button>
+                    </div>
+
+                    <div id="status" class="status info"></div>
+                </div>
+            </aside>
+
+            <main>
+                <section class="panel">
+                    <div class="inner">
+                        <div id="emptyState" class="placeholder">
+                            还没有分析结果。上传一集短剧后，这里会显示台词时间轴、高光点、互动触发和记忆回收。
+                        </div>
+                        <div id="results" style="display:none;">
+                            <div class="stats">
+                                <div class="stat">
+                                    <div class="label">台词数</div>
+                                    <div id="statLines" class="value">-</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="label">高光数</div>
+                                    <div id="statHighlights" class="value">-</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="label">互动点</div>
+                                    <div id="statInteractions" class="value">-</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="label">时长</div>
+                                    <div id="statDuration" class="value">-</div>
+                                </div>
+                            </div>
+
+                            <div class="section">
+                                <h3>剧情上下文</h3>
+                                <div id="storyContext" class="card"></div>
+                            </div>
+
+                            <div class="section">
+                                <h3>本集摘要</h3>
+                                <div id="episodeSummary" class="card"></div>
+                            </div>
+
+                            <div class="section">
+                                <h3>高光点</h3>
+                                <div id="highlights"></div>
+                            </div>
+
+                            <div class="section">
+                                <h3>互动触发</h3>
+                                <div id="interactions"></div>
+                            </div>
+
+                            <div class="section">
+                                <h3>台词时间轴</h3>
+                                <div id="transcriptLines"></div>
+                            </div>
+
+                            <div class="section">
+                                <h3>完整转写</h3>
+                                <div class="card"><pre id="fullTranscript">暂无</pre></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const backendBase = `http://${window.location.hostname}:5001`;
+
+        const statusBox = document.getElementById("status");
+        const resultsBox = document.getElementById("results");
+        const emptyState = document.getElementById("emptyState");
+
+        function showStatus(message, kind = "info") {
+            statusBox.textContent = message;
+            statusBox.className = `status show ${kind}`;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+        }
+
+        function renderList(items, renderer, emptyText = "暂无") {
+            if (!items || items.length === 0) {
+                return `<div class="card">${escapeHtml(emptyText)}</div>`;
+            }
+            return items.map(renderer).join("");
+        }
+
+        document.getElementById("fillBtn").addEventListener("click", () => {
+            document.getElementById("speakerMapping").value = JSON.stringify({
+                speaker_1: "沈知意",
+                speaker_2: "陆沉"
+            }, null, 2);
+        });
+
+        document.getElementById("analyzeBtn").addEventListener("click", async () => {
+            const videoFile = document.getElementById("videoFile").files[0];
+            const transcriptFile = document.getElementById("transcriptFile").files[0];
+            if (!videoFile) {
+                showStatus("请先选择视频文件。", "error");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("video", videoFile);
+            if (transcriptFile) {
+                formData.append("transcriptFile", transcriptFile);
+            }
+            formData.append("seriesTitle", document.getElementById("seriesTitle").value);
+            formData.append("seriesKey", document.getElementById("seriesKey").value);
+            formData.append("episodeNumber", document.getElementById("episodeNumber").value);
+            formData.append("asrLanguage", document.getElementById("asrLanguage").value);
+            formData.append("asrBeamSize", document.getElementById("asrBeamSize").value);
+            formData.append("speakerMapping", document.getElementById("speakerMapping").value);
+
+            showStatus("正在分析，请稍候。没有人工字幕时会先做 ffmpeg 音频清洗，再走更强的 Whisper ASR。第一次启动可能较慢。", "info");
+            try {
+                const response = await fetch(`${backendBase}/analyze`, {
+                    method: "POST",
+                    body: formData
+                });
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.error || "分析失败");
+                }
+                renderResults(payload);
+                showStatus("分析完成。", "success");
+            } catch (error) {
+                showStatus(`分析失败：${error.message}`, "error");
+            }
+        });
+
+        function renderResults(data) {
+            emptyState.style.display = "none";
+            resultsBox.style.display = "block";
+
+            document.getElementById("statLines").textContent = data.pipeline?.line_count ?? "-";
+            document.getElementById("statHighlights").textContent = data.highlights?.length ?? 0;
+            document.getElementById("statInteractions").textContent = data.interactions?.length ?? 0;
+            document.getElementById("statDuration").textContent = `${data.media?.video_duration ?? "-"}s`;
+
+            const context = data.story_context || {};
+            document.getElementById("storyContext").innerHTML = `
+                <div class="meta">
+                    剧名：${escapeHtml(context.series_title || "-")}<br>
+                    系列 Key：${escapeHtml(context.series_key || "-")}<br>
+                    集数：${escapeHtml(context.episode_number || "-")}<br>
+                    转写来源：${escapeHtml(data.pipeline?.transcript_source || "-")}<br>
+                    speaker 策略：${escapeHtml(data.pipeline?.diarization_strategy || "-")}<br>
+                    ASR 模型：${escapeHtml(data.pipeline?.asr_model || "-")}<br>
+                    音频预处理：${escapeHtml(data.pipeline?.audio_preprocess || "-")}
+                </div>
+            `;
+
+            document.getElementById("episodeSummary").innerHTML = `
+                <div>${escapeHtml(data.story_memory?.episode_summary || "暂无")}</div>
+            `;
+
+            document.getElementById("highlights").innerHTML = renderList(data.highlights, (item) => `
+                <div class="card">
+                    <h4>${escapeHtml(item.highlight_type || "高光点")}</h4>
+                    <div class="meta">
+                        ${escapeHtml(item.start_time)}s - ${escapeHtml(item.end_time)}s | 峰值 ${escapeHtml(item.peak_time)}s | 互动 ${escapeHtml(item.interaction_time)}s<br>
+                        角色：${escapeHtml(item.character_name || item.speaker_id || "-")} | payoff：${escapeHtml(item.payoff_type || "-")}
+                    </div>
+                    <div style="margin-top:10px;">${escapeHtml(item.key_line || "暂无")}</div>
+                    <div class="chips">
+                        <span class="chip">${escapeHtml(item.interaction_type || "-")}</span>
+                        ${(item.related_previous_events || []).map((event) => `<span class="chip">${escapeHtml(event.summary || event.event_type || "前文事件")}</span>`).join("")}
+                    </div>
+                    <div class="meta" style="margin-top:10px;">${escapeHtml(item.trigger_reason || "暂无")}</div>
+                </div>
+            `);
+
+            document.getElementById("interactions").innerHTML = renderList(data.interactions, (item) => `
+                <div class="card">
+                    <h4>${escapeHtml(item.interaction_type || "互动触发")}</h4>
+                    <div class="meta">
+                        触发时间：${escapeHtml(item.interaction_time)}s | speaker：${escapeHtml(item.speaker_id || "-")} | 角色：${escapeHtml(item.character_name || "-")}
+                    </div>
+                    <div style="margin-top:10px;">${escapeHtml(item.key_line || "暂无")}</div>
+                </div>
+            `);
+
+            document.getElementById("transcriptLines").innerHTML = renderList(data.transcript?.lines, (line) => `
+                <details>
+                    <summary>
+                        <span>${escapeHtml((line.character_name || line.speaker_id || "speaker"))} · ${escapeHtml(line.start_time)}s - ${escapeHtml(line.end_time)}s</span>
+                        <span>${escapeHtml(line.source || "-")}</span>
+                    </summary>
+                    <div>
+                        <div class="card">
+                            <div>${escapeHtml(line.text || "暂无")}</div>
+                            <div class="meta" style="margin-top:8px;">
+                                pause_before=${escapeHtml(line.pause_before)}s | pause_after=${escapeHtml(line.pause_after)}s<br>
+                                speech_energy=${escapeHtml(line.speech_energy)} | music_bed_score=${escapeHtml(line.music_bed_score)}<br>
+                                switch_before=${line.speaker_switch_before ? "true" : "false"} | switch_after=${line.speaker_switch_after ? "true" : "false"}
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            `);
+
+            document.getElementById("fullTranscript").textContent = data.transcript?.full_text || "暂无";
+
+            if (context.series_key) {
+                document.getElementById("seriesKey").value = context.series_key;
+            }
+        }
+    </script>
+</body>
+</html>

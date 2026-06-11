@@ -1,0 +1,12 @@
+[project]
+name = "video-audit-platform"
+version = "0.1.0"
+description = "Short drama interaction backend with story memory, highlight detection and interaction trigger generation."
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
