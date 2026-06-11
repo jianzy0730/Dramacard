@@ -1,4 +1,4 @@
-
+https://github.com/gyfleo77-netizen/Dramacard/blob/main/release/%E5%BE%AE%E4%BF%A1%E8%A7%86%E9%A2%912026-06-11_192134_985.mp4
 
 # DramaCard 短剧互动卡片项目
 
