@@ -122,6 +122,17 @@ dramacard-open-source/
 - 临时缓存
 - 非指定 APK 或压缩包
 
+## 团队分工
+
+**蔡卓颖：客户端开发与交互实现**
+负责 Android 客户端整体开发与界面设计，实现短剧列表、视频播放、卡册系统、角色展示以及剧情互动等核心功能；完成客户端与内容配置/接口联调，并负责最终产品展示效果优化与 Demo 录制。
+
+**李沐函：服务端与内容生成模块开发**
+负责后台服务架构设计与实现，完成短剧数据管理、高光点下发、互动数据存储等业务逻辑开发；同时负责高光卡牌生成、剧情分支生成、平行结局生成等内容生成模块的设计与实现。
+
+**简子瑜：短剧视频理解与测试验证**
+负责短剧视频理解、内容分析与高光识别流程设计，完成剧情标签整理、高光点标注与内容理解模块开发；同时负责系统测试、功能验证以及项目文档整理工作，保障整体系统稳定运行。
+
 ## 项目状态
 
 这是一个产品原型级项目，重点展示“短剧视频分析 -> 互动内容配置 -> Android 播放互动”的完整链路。公开版更适合阅读架构、二次开发和替换为自己的内容资产，而不是开箱即用地播放原始私有剧集。
@@ -254,6 +265,17 @@ You need to provide:
 - model weights
 - temporary caches
 - APKs or archives other than the explicitly included release artifact
+
+## Team Roles
+
+**Cai Zhuoying: Android Client Development and Interaction Implementation**
+Responsible for the overall development and UI design of the Android client, including the short-drama list, video playback, card album system, character display, and story interaction features. Also completed client-side integration with content configuration/interfaces, optimized the final product presentation, and recorded the demo.
+
+**Li Muhan: Backend and Content Generation Module Development**
+Responsible for the backend service architecture and implementation, including short-drama data management, highlight-point delivery, and interaction data storage. Also designed and implemented content generation modules such as highlight card generation, story branch generation, and parallel ending generation.
+
+**Jian Ziyu: Short-Drama Video Understanding and Testing**
+Responsible for the design of the short-drama video understanding, content analysis, and highlight recognition workflow, including story tag organization, highlight-point annotation, and content understanding module development. Also handled system testing, functional verification, and project documentation to ensure overall system stability.
 
 ## Project Status
 
